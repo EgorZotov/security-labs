@@ -12,6 +12,9 @@ session_start();
 
 <body>
     <div class="page">
+        <div class = "start">
+            <button class = "start__button">Начать работу с программой</button>
+        </div>
         <div class="modal-window">
             <div class="window-header">
                 <span class="window-header__text">Вход в систему</span>
@@ -31,7 +34,7 @@ session_start();
                     </div>
                     <div class="buttons-wrap row">
                         <button class="form-button">Ок</button>
-                        <button type="button" class="form-button">Отмена</button>
+                        <button type="button" class="form-button back">Отмена</button>
                         <button type="button" class="form-button link" data-route="registration-form">Регистрация</button>
                     </div>
                 </form>
@@ -54,7 +57,7 @@ session_start();
                     <input type="hidden" name="action" value="password-change">
                     <div class="input-wrap">
                         <label class="form-label">Введите старый пароль:</label>
-                        <input class="form-input form-input_wide" type="text" name="old-password" />
+                        <input class="form-input form-input_wide" type="password" name="old-password" />
                     </div>
                     <div class="input-wrap">
                         <label class="form-label">Введите новый пароль:</label>

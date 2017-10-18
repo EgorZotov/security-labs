@@ -48,9 +48,6 @@
     top: 50%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-}
-
-.modal-window {
     border: 3px outset #ecebe6;
     background-color: #cfcec0;
     display: -webkit-box;
@@ -60,8 +57,19 @@
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
+    display: none;
 }
-
+.start{
+    position: absolute;
+    left:50%;
+    top: 50%;
+    transform:translate(-50%,-50%);
+}
+.start__button{
+    width: 200px;
+    height: 50px;
+    border: 3px outset #ecebe6;
+}
 form:not(.login-form) {
     display: none;
 }

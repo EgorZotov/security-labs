@@ -5,20 +5,53 @@ $(document).ready(function() {
     }
 
     function toggleForm(formSelector) {
-        $('form').fadeOut('700').promise().done(function() {
             if (formSelector == "admin-form") {
                 $.post('/api/handler.php', { action: 'users' }, function(res) {
-                    var users = JSON.parse(res);
-                    users.forEach(function(user, key) {
-                        $('#user-selector').append('<option name value="' + user + '">' + user + '</option>');
-                    });
-                    $('.' + formSelector).fadeIn('1500');
+                    res = JSON.parse(res);
+                    if (res.status && res.status == "success") {
+                        res.users.forEach(function(user, key) {
+                            $('#user-selector').append('<option name value="' + user + '">' + user + '</option>');
+                        });
+                        $('form').fadeOut('700').promise().done(function() {
+                        	$('.' + formSelector).fadeIn('1500');
+                        });
+                    } else {
+                    	showAlert('Нет Пользователей');
+                    }
                 });
             } else {
-                $('.' + formSelector).fadeIn('1500');
+            	$('form').fadeOut('700').promise().done(function() {
+            		$('.' + formSelector).fadeIn('1500');
+            	});
+            
             }
+    }
+
+    function closeProgram() {
+        $('.modal-window').fadeOut('700').promise().done(function() {
+            $.post('/api/handler.php', { action: 'clear' }, function(res) {
+                res = JSON.parse(res);
+                console.log(res);
+                if (res.status && res.status == 'success') {
+                    $('.start__program').fadeIn('1500');
+                }
+            });
         });
     }
+
+    function startProgram() {
+        console.log('работает');
+        $('.start').fadeOut('700').promise().done(function() {
+            $('.modal-window').fadeIn('1500');
+        });
+    }
+    $('.form-button.back').click(function(e) {
+    	e.preventDefault();
+    	console.log($(this).closest('form').attr('class'));
+    });
+    $('.start__button').bind('click', startProgram);
+    $('.window-header__close').bind('click', closeProgram);
+
     $('.login-form').submit(function(e) {
         e.preventDefault();
         var data = $(this).serializeArray();
@@ -28,17 +61,27 @@ $(document).ready(function() {
             if (res.status && res.status == 'success') {
                 (res.role == 'admin') ? toggleForm('admin-form'): toggleForm('password-form');
             } else {
-               switch(res.reason){
-                case 'blocked':
-                    showAlert('Пользователь заблокирован');
-                break;
-                case 'password_restricted':
-                    showAlert('Введено ограничение');
-                break;
-                default:
-                    showAlert('Пользователь не найден');
-                    break;
-               }
+                switch (res.reason) {
+                    case 'blocked':
+                        showAlert('Пользователь заблокирован');
+                        break;
+                    case 'password_restricted':
+                        showAlert('Введено ограничение');
+                        break;
+                    default:
+                        showAlert('Пользователь не найден');
+                        break;
+                }
+            }
+        });
+    });
+    $('.registration-form').submit(function(e) {
+        e.preventDefault();
+        $.post('/api/handler.php', $(this).serialize(), function(res) {
+            res = JSON.parse(res);
+            console.log(res);
+            if (res.status && res.status == 'success') {
+                showAlert('Успешная регистрация');
             }
         });
     });
