@@ -1,1 +1,1 @@
-[{"username":"egor","password":"135711"}]
+[{"username":"admin","password":"123456","isAdmin":true},{"username":"egor","password":"123456","block":true,"password_restrict":true},{"username":"egor2","password":"123456","block":true,"password_restrict":true},{"username":"egor3","password":"123456","block":true,"password_restrict":true},{"username":"egor4","password":"123456","block":true},{"username":"egor6","isNew":false,"password":"5555555"},{"username":"egor7","isNew":false,"password":"135711"},{"username":"egor11","isNew":false,"password":"135711"}]

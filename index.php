@@ -34,7 +34,7 @@ session_start();
                     </div>
                     <div class="buttons-wrap row">
                         <button class="form-button">Ок</button>
-                        <button type="button" class="form-button back">Отмена</button>
+                        <button type="button" class="form-button back" data-back = "close">Отмена</button>
                         <button type="button" class="form-button link" data-route="registration-form">Регистрация</button>
                     </div>
                 </form>
@@ -50,7 +50,7 @@ session_start();
                     </div>
                     <div class="buttons-wrap row">
                         <button class="form-button">Ок</button>
-                        <button type="button" class="form-button">Отмена</button>
+                        <button type="button" class="form-button back" data-back = "login-form" >Отмена</button>
                     </div>
                 </form>
                 <form class="password-form">
@@ -65,7 +65,8 @@ session_start();
                     </div>
                     <div class="buttons-wrap row">
                         <button class="form-button">Ок</button>
-                        <button type="button" class="form-button">Отмена</button>
+                        <button id="admin-route" type="button" class="form-button link hidden" data-route="admin-form">Администрирование</button>
+                        <button type="button" class="form-button back" data-back = "login-form">Отмена</button>
                     </div>
                 </form>
                 <form class="admin-form">
@@ -78,15 +79,43 @@ session_start();
                     </div>
                     <div class="input-wrap row">
                         <label class="form-label checkbox">Блокрировка</label>
-                        <input type="checkbox" name="block" class="form-input checkbox" />
+                        <input type="checkbox" id = "block" name="block" class="form-input checkbox" />
                     </div>
                     <div class="input-wrap row">
                         <label class="form-label checkbox">Парольное ограничение</label>
-                        <input type="checkbox" name="password_restrict" class="form-input checkbox" />
+                        <input type="checkbox" id= "password_restrict" name="password_restrict" class="form-input checkbox" />
                     </div>
                     <div class="buttons-wrap row">
-                        <button class="form-button">Сохранить</button>
+                        <button type = 'button' class="form-button back" data-back = "password-form">Отмена</button>
                         <button class="form-button">Ок</button>
+                        <button type="button" class="form-button link" data-route="new-user">Новый пользователь</button>
+                    </div>
+                </form>
+                <form class="confirm-form">
+                    <input type="hidden" name="action" value="confirm">
+                    <input id = "confirm-username" type="hidden" name="username">
+                    <div class="input-wrap">
+                        <label class="form-label">Установите пароль:</label>
+                        <input class="form-input form-input_wide" type="password" name="password" />
+                    </div>
+                    <div class="input-wrap">
+                        <label class="form-label">Повторите пароль:</label>
+                        <input class="form-input form-input_wide" type="password" name="repeat-password" />
+                    </div>
+                    <div class="buttons-wrap row">
+                        <button class="form-button">Ок</button>
+                        <button type="button" class="form-button back" data-back = "login-form">Отмена</button>
+                    </div>
+                </form>
+                <form class = "new-user">
+                    <input type="hidden" name="action" value = "newuser">
+                    <div class="input-wrap">
+                        <label class="form-label">Имя нового пользователя</label>
+                        <input class="form-input form-input_wide" type="text" name="username" />
+                    </div>
+                    <div class="buttons-wrap row">
+                        <button class="form-button">Ок</button>
+                        <button type="button" class="form-button back" data-back = "login-form">Отмена</button>
                     </div>
                 </form>
             </div>

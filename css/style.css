@@ -194,3 +194,6 @@ form:not(.login-form) {
     border: 3px outset #ecebe6;
     background-color: #cfcec0;
 }
+.form-button.hidden{
+    display: none;
+}

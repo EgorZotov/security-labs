@@ -5,12 +5,15 @@ $(document).ready(function() {
     }
 
     function toggleForm(formSelector) {
-            if (formSelector == "admin-form") {
-                $.post('/api/handler.php', { action: 'users' }, function(res) {
+        //if (formSelector == "admin-form") {
+        /*$.post('/api/handler.php', { action: 'users' }, function(res) {
                     res = JSON.parse(res);
                     if (res.status && res.status == "success") {
                         res.users.forEach(function(user, key) {
-                            $('#user-selector').append('<option name value="' + user + '">' + user + '</option>');
+                            var restricted = user.password_restrict ? true : false;
+                            var admin = user.admin ? true : false;
+                            var blocked = user.blocked ? true : false;
+                            $('#user-selector').append('<option data-restricted="'+restricted+'" data-blocked="'+blocked+'" data-admin="'+admin+'" value="' + user.username + '">' + user.username + '</option>');
                         });
                         $('form').fadeOut('700').promise().done(function() {
                         	$('.' + formSelector).fadeIn('1500');
@@ -19,25 +22,26 @@ $(document).ready(function() {
                     	showAlert('Нет Пользователей');
                     }
                 });
-            } else {
-            	$('form').fadeOut('700').promise().done(function() {
-            		$('.' + formSelector).fadeIn('1500');
-            	});
-            
-            }
+            } else {*/
+        $('form').fadeOut('700').promise().done(function() {
+            $('.' + formSelector).fadeIn('1500');
+        });
+
+        /*}*/
     }
 
     function closeProgram() {
         $('.modal-window').fadeOut('700').promise().done(function() {
-            $.post('/api/handler.php', { action: 'clear' }, function(res) {
+            /*$.post('/api/handler.php', { action: 'clear' }, function(res) {
                 res = JSON.parse(res);
                 console.log(res);
                 if (res.status && res.status == 'success') {
                     $('.start__program').fadeIn('1500');
                 }
-            });
+            });*/
         });
     }
+
 
     function startProgram() {
         console.log('работает');
@@ -45,10 +49,7 @@ $(document).ready(function() {
             $('.modal-window').fadeIn('1500');
         });
     }
-    $('.form-button.back').click(function(e) {
-    	e.preventDefault();
-    	console.log($(this).closest('form').attr('class'));
-    });
+
     $('.start__button').bind('click', startProgram);
     $('.window-header__close').bind('click', closeProgram);
 
@@ -59,7 +60,25 @@ $(document).ready(function() {
             console.log(res);
             res = JSON.parse(res);
             if (res.status && res.status == 'success') {
-                (res.role == 'admin') ? toggleForm('admin-form'): toggleForm('password-form');
+                if (res.role == 'admin') {
+                    res.users.forEach(function(user, key) {
+                        var restricted = user.password_restrict ? true : false;
+                        var blocked = user.block ? true : false;
+                        $('#user-selector').append('<option data-restricted="' + restricted + '" data-blocked="' + blocked + '" value="' + user.username + '">' + user.username + '</option>');
+                    });
+                    var first_restircted = res.users[0].password_restrict ? true : false;
+                    var first_blocked = res.users[0].block ? true : false;
+                    $('#password_restrict').prop('checked', first_restircted);
+                    $('#block').prop('checked', first_blocked);
+                    $('#admin-route').removeClass('hidden');
+                    toggleForm('password-form');
+                } else if (res.role == 'new-user') {
+                	$('#confirm-username').val(res.user);
+                    toggleForm('confirm-form');
+                } else {
+                	$('#admin-route').addClass('hidden');
+                	toggleForm('password-form');
+                }
             } else {
                 switch (res.reason) {
                     case 'blocked':
@@ -74,6 +93,15 @@ $(document).ready(function() {
                 }
             }
         });
+    });
+
+    $('#user-selector').change(function() {
+        var $currentOption = $(this).find('option[value=' + $(this).val() + ']');
+        console.log($currentOption);
+        var blocked = $currentOption.data('blocked');
+        var restricted = $currentOption.data('restricted');
+        $('#password_restrict').prop('checked', restricted);
+        $('#block').prop('checked', blocked);
     });
     $('.registration-form').submit(function(e) {
         e.preventDefault();
@@ -96,6 +124,19 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.new-user').submit(function(e) {
+        e.preventDefault();
+        $.post('/api/handler.php', $(this).serialize(), function(res) {
+            res = JSON.parse(res);
+            console.log(res);
+            if (res.status && res.status == 'success') {
+                showAlert('Новый пользователь создан');
+                $('#user-selector').append('<option data-restricted="false" data-blocked="false" value="' + res.user.username + '">' + res.user.username + '</option>');
+                toggleForm('admin-form');
+            }
+        });
+    });
     $('.admin-form').submit(function(e) {
         e.preventDefault();
         var data = $(this).serializeArray();
@@ -103,21 +144,40 @@ $(document).ready(function() {
         $.post('/api/handler.php', $(this).serialize(), function(res) {
             res = JSON.parse(res);
             if (res.status && res.status == 'success') {
+                var $currentOption = $('#user-selector').find('option[value=' + $('#user-selector').val() + ']');
+                $currentOption.data('blocked', $('#block').prop('checked'));
+                $currentOption.data('restricted', $('#password_restrict').prop('checked'));
                 showAlert('Права изменены');
             }
         });
+    });
+    $('.confirm-form').submit(function(e) {
+        e.preventDefault();
+        var password = $(this).find('input[name=password]').val();
+        var repeat_password = $(this).find('input[name=repeat-password]').val();
+        console.log(password);
+        console.log(repeat_password);
+        if (password == repeat_password) {
+            $.post('/api/handler.php', $(this).serialize(), function(res) {
+                res = JSON.parse(res);
+                if (res.status && res.status == 'success') {
+                    showAlert('Пароль выставлен');
+                    toggleForm('login-form');
+                }
+            });
+        } else {
+        	showAlert('Пароли не совпадают');
+        }
     });
     $('.form-button.link').bind('click', function() {
         var route = $(this).data('route');
         toggleForm(route);
     });
-    /*$('.login-form').submit(function() {
 
+    $('.form-button.back').click(function(e) {
+        e.preventDefault();
+        var back = $(this).data('back')
+        if (back >= 'close')
+            toggleForm(back);
     });
-    $('.login-form').submit(function() {
-
-    });
-    $('.login-form').submit(function() {
-
-    });*/
 });

@@ -37,7 +37,7 @@ switch($_POST['action']){
 		$fileData = json_decode(file_get_contents($file),true);
 		if(!empty($fileData)){
 			$respond['status'] = 'success';
-			$respond['users'] = array_column($fileData,'username');
+			$respond['users'] = $fileData;
 			echo json_encode($respond);
 		} else {
 		  $respond['status'] = 'no_users';
@@ -46,44 +46,50 @@ switch($_POST['action']){
 		break;
 	case 'login':
 		$file = dirname(dirname(__FILE__))."\secret-files\userdata.json";
-		if($_POST['username']=='admin' && $_POST['password']=='admin' ){
-			$respond = array();
-			$respond['status'] = 'success';
-			$respond['role'] = 'admin'; 
-		} else {
-			$file_content = file_get_contents($file);
-			$logged_in = false;
-			$data = json_decode($file_content);
-			$respond = array();
-			if(!empty($data)){
-				foreach ($data as $db_user) {
-					if($db_user->username == $_POST['username'] && $db_user->password == $_POST['password']){
-						if($db_user->password_restrict || $db_user->block){
-							if($db_user->password_restrict){
-								if(preg_match('/[A-Za-z]/',$db_user->password) && preg_match('/[0-9]/',$db_user->password) && preg_match('/p{P}/',$db_user->password)) {
-									$logged_in = true;	
-								} else {
-									$respond['reason'] = 'password_restricted';
-								}
-								if($db_user->block){
-									$respond['reason'] = 'blocked';
-								}
-							}
-						} else {
-							$logged_in = true;
-							$_SESSION['username'] = $db_user->username;
-						}  
-					}
-				} 
-				if($logged_in) {
+		$file_content = file_get_contents($file);
+		$data = json_decode($file_content,true);
+		$logged_in = false;
+		$isNew = false;
+		$respond = array();
+		if(!empty($data)){
+			foreach ($data as $db_user) {
+				if($_POST['username']=='admin' && $db_user['password'] == $_POST['password'] && $db_user['isAdmin'] == true) {
 					$respond['status'] = 'success';
-				} else {
-					$respond['status'] = 'error';
+					$respond['role'] = 'admin';
+					$_SESSION['username'] = $db_user['username'];
+					array_shift($data);
+					$respond['users'] = $data;
+					$logged_in = true;
+				} else if($db_user['username'] == $_POST['username'] && $db_user['isNew'] == true) {
+					$respond['role'] = 'new-user';
+					$respond['user'] = $db_user['username'];
+					$isNew = true;
+				} else if($db_user['username'] == $_POST['username'] && $db_user['password'] == $_POST['password']){
+					if($db_user['password_restrict'] || $db_user['block']){
+						if($db_user['password_restrict']){
+							if(preg_match('/[A-Za-z]/',$db_user['password']) && preg_match('/[0-9]/',$db_user['password']) && preg_match('/p{P}/',$db_user['password'])) {
+								$logged_in = true;	
+							} else {
+								$respond['reason'] = 'password_restricted';
+							}
+							if($db_user['block']){
+								$respond['reason'] = 'blocked';
+							}
+						}
+					} else {
+						$logged_in = true;
+						$_SESSION['username'] = $db_user['username'];
+					}  
 				}
+			} 
+			if($logged_in || $isNew) {
+				$respond['status'] = 'success';
 			} else {
-				$respond['status'] = 'no_users';
-			}	
-		}
+				$respond['status'] = 'error';
+			}
+		} else {
+			$respond['status'] = 'no_users';
+		}	
 		echo json_encode($respond); 
 		break;	
 	case 'password-change':
@@ -114,7 +120,7 @@ switch($_POST['action']){
 			foreach ($data as &$db_user) {
 				if($db_user['username'] == $_POST['username']) { 
 					if($_POST['block'] =='on'){
-						$db_user['block'] = true;
+						$db_user['block'] = true; 
 					}
 					if($_POST['password_restrict']=='on'){
 						$db_user['password_restrict'] = true;
@@ -138,5 +144,38 @@ switch($_POST['action']){
 		$result = file_put_contents($file, '');
 		$respond['status'] = 'success';
 		echo json_encode($respond);
+		break;
+	case 'newuser':
+		$file = dirname(dirname(__FILE__))."\secret-files\userdata.json";
+		$file_content = file_get_contents($file);
+		$data = json_decode($file_content,true);
+		$newUser = array('username'=>$_POST['username'],'isNew'=>true);
+		array_push($data,$newUser);
+		$respond['status'] = 'success';
+		$respond['user'] = $newUser;
+		file_put_contents($file, json_encode($data));
+		echo json_encode($respond);
+		break;
+	case 'confirm':
+		$file = dirname(dirname(__FILE__))."\secret-files\userdata.json";
+		$file_content = file_get_contents($file);
+		$data = json_decode($file_content,true);
+		$finded = false;
+		foreach ($data as &$db_user) {
+			if($db_user['username'] == $_POST['username'] && $db_user['isNew'] == true ) {
+				$db_user['password'] = $_POST['password'];
+				$db_user['isNew'] = false;
+				$finded = true;
+			}
+		}
+		if($finded){
+			file_put_contents($file, json_encode($data));
+			$respond['status'] = 'success';
+		} else {
+			$respond['status'] = 'error';
+			$respond['reason'] = 'not_found';
+		}
+		echo json_encode($respond);
+		break;
  }
 // закрываем
