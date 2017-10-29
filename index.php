@@ -12,9 +12,6 @@ session_start();
 
 <body>
     <div class="page">
-        <div class = "start">
-            <button class = "start__button">Начать работу с программой</button>
-        </div>
         <div class="modal-window">
             <div class="window-header">
                 <span class="window-header__text">Вход в систему</span>
@@ -22,7 +19,15 @@ session_start();
                 </div>
             </div>
             <div class="window-content">
-                <form class="login-form">
+                <form class = "start">
+                    <div class="input-wrap">
+                        <input type='hidden' name = 'action' value = 'start'>
+                        <label class="form-label">Введите пароль для расшифровывания:</label>
+                        <input class="form-input form-input_normal" type="password" name="password"/>
+                    </div>
+                    <button class = "start__button">Начать работу с программой</button>
+                </form>
+                <form class="login-form" data-tries = "0">
                     <input type="hidden" name="action" value="login">
                     <div class="input-wrap">
                         <label class="form-label">Введите имя:</label>
@@ -120,6 +125,7 @@ session_start();
                 </form>
             </div>
         </div>
+        <a target='_blank' href = "/about.html" class = "about-programm">О программе</a>
         <div class="alert-box">
         	<div class="alert-box__content"></div>
         	<i class = 'alert-box__icon'></i>

@@ -7,6 +7,15 @@
     bottom: 0;
 }
 
+.about-programm{
+    position: absolute;
+    right: 0;
+    left: 0;
+    padding: 20px;
+    background-color: green;
+    color:yellow;
+    text-align: center;
+}
 .alert-box {
     position: fixed;
     top: 0;
@@ -57,20 +66,23 @@
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
-    display: none;
+    /*display: none;*/
 }
-.start{
+
+.start {
     position: absolute;
-    left:50%;
+    left: 50%;
     top: 50%;
-    transform:translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 }
-.start__button{
+
+.start__button {
     width: 200px;
     height: 50px;
     border: 3px outset #ecebe6;
 }
-form:not(.login-form) {
+
+form:not(.start) {
     display: none;
 }
 
@@ -125,6 +137,7 @@ form:not(.login-form) {
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
+    min-width: 300px;
 }
 
 .form-label {
@@ -194,6 +207,7 @@ form:not(.login-form) {
     border: 3px outset #ecebe6;
     background-color: #cfcec0;
 }
-.form-button.hidden{
+
+.form-button.hidden {
     display: none;
 }
