@@ -10,9 +10,9 @@ switch($_POST['action']){
 		$result = file_put_contents($file, 'Отработал');
 		break;
 	case 'start':
-		$cipher = 'AES-256-CBC';
+		/*$cipher = 'AES-256-CBC';*/
 		/*AES-256-ECB*/
-		$key = hash('md4',7771);
+		/*$key = hash('md4',7771);
 		$ivlen = openssl_cipher_iv_length($cipher);
     	$iv = openssl_random_pseudo_bytes($ivlen);
     	$cryptoData = array('cipher'=>$cipher,'key'=>$key,'iv'=>$iv);
@@ -26,7 +26,7 @@ switch($_POST['action']){
     	$file_decrypt = openssl_decrypt($file_crypt, $cryptoData['cipher'], $cryptoData['key'], $options=0, $cryptoData['iv']); 
 		file_put_contents($fileCrypt, $file_crypt);
 		file_put_contents($fileDecrypt, $file_decrypt);
-		file_put_contents($cryptData, json_encode($cryptoData));
+		file_put_contents($cryptData, json_encode($cryptoData));*/
 		if($_POST['password'] == 'admin'){
 			decryptToFile();
 			$respond['status'] = 'ok';
@@ -104,6 +104,7 @@ switch($_POST['action']){
 									$logged_in = true;	
 								} else {
 									$respond['reason'] = 'password_restricted';
+									$_SESSION['username'] = $db_user['username'];
 								}
 								if($db_user['block']){
 									$respond['reason'] = 'blocked';
@@ -135,11 +136,15 @@ switch($_POST['action']){
 		$data = json_decode($file_content);
 		$hashedPassword = hash('md4',$_POST['old-password']);
 		foreach ($data as $db_user) {
-			if($db_user->username == $_SESSION['username'] && hash_equals($db_user->password,$hashedPassword)){ 
-				$db_user->password = hash('md4',$_POST['new-password']);
-				$valid = true;
-			}
-		} 
+			if($db_user->username == $_SESSION['username'] && hash_equals($db_user->password,$hashedPassword)){
+				if($db_user->password_restrict && !preg_match('/[A-Za-z]/',$_POST['password']) && !preg_match('/[0-9]/',$_POST['password']) && !preg_match('/p{P}/',$_POST['password'])){
+					$respond['role'] = 'wrong_pattern';
+				} else { 
+					$db_user->password = hash('md4',$_POST['new-password']);
+					$valid = true;
+				}
+			} 
+		}
 		if($valid){
 			$respond['status'] = 'success';
 			$result = encryptToFile(json_encode($data));
@@ -162,7 +167,7 @@ switch($_POST['action']){
 						$db_user['block'] = false;
 					}
 					if($_POST['password_restrict']=='on'){
-						$db_user['password_restrict'] = true;
+						$db_user['password_restrict'] = true;	
 					} else {
 						$db_user['password_restrict'] = false;
 					}

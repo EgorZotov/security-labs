@@ -10,6 +10,19 @@ function utf8ize($d) {
     return $d;
 }
 
+if(!function_exists('hash_equals')) {
+  function hash_equals($str1, $str2) {
+    if(strlen($str1) != strlen($str2)) {
+      return false;
+    } else {
+      $res = $str1 ^ $str2;
+      $ret = 0;
+      for($i = strlen($res) - 1; $i >= 0; $i--) $ret |= ord($res[$i]);
+      return !$ret;
+    }
+  }
+}
+
 function decryptToFile(){
 		$fileCrypt = dirname(dirname(__FILE__))."\secret-files\crypt.txt";
 		$fileDecrypt = dirname(dirname(__FILE__))."\secret-files\userdata.json";

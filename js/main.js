@@ -115,6 +115,7 @@ $(document).ready(function() {
                         break;
                     case 'password_restricted':
                         showAlert('Введено ограничение');
+                        toggleForm('password-form');
                         break;
                     case 'wrong_password':
                         var tries = parseInt($('.login-form').data('tries'));
@@ -160,6 +161,10 @@ $(document).ready(function() {
             console.log(res);
             if (res.status && res.status == 'success') {
                 showAlert('Пароль изменён');
+            } else if(res.status = "no_match" && !res.role){
+                showAlert('Неверный старый пароль');
+            } else if(res.status = "no_match" && res.role == 'wrong_pattern'){
+                showAlert('Только Цифры,Знаки препинания,Буквы');
             }
         });
     });
